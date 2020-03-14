@@ -1,4 +1,4 @@
-package rest_test
+package gorest_test
 
 import (
 	"fmt"

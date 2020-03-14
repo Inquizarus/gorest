@@ -1,4 +1,4 @@
-package rest
+package gorest
 
 import (
 	log "github.com/sirupsen/logrus"
