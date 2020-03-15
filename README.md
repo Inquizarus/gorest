@@ -1,3 +1,4 @@
+[![CircleCI](https://circleci.com/gh/inquizarus/gorest.svg?style=svg)](https://circleci.com/gh/inquizarus/gorest)
 # GOREST
 Just a simple rest server with injectable handlers and middlewares
 
