@@ -22,17 +22,6 @@ func TestThatBaseHandlerGetPathReturnsCorrectValue(t *testing.T) {
 	}
 }
 
-func TestThatBaseHandlerGetNameReturnsCorrectValue(t *testing.T) {
-	expected := "test-route"
-	handler := rest.BaseHandler{
-		Name: expected,
-	}
-	actual := handler.GetName()
-	if !assertEquals(actual, expected) {
-		t.Errorf("handler GetName return wrong value, expected %s but got %s", expected, actual)
-	}
-}
-
 func TestThatHandleDirectsGETRequestsCorrectly(t *testing.T) {
 	cases := []string{"GET", "PUT", "POST", "DELETE"}
 	f := func(w http.ResponseWriter, r *http.Request, vars map[string]string) {

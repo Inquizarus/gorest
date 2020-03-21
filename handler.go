@@ -9,7 +9,6 @@ import (
 // Handler interface for controllers
 type Handler interface {
 	GetPath() string
-	GetName() string
 	Handle(http.ResponseWriter, *http.Request)
 }
 
@@ -27,11 +26,6 @@ type BaseHandler struct {
 // GetPath for BaseHandler
 func (h *BaseHandler) GetPath() string {
 	return h.Path
-}
-
-// GetName for BaseHandler
-func (h *BaseHandler) GetName() string {
-	return h.Name
 }
 
 // Handle for BaseHandler
