@@ -34,14 +34,15 @@ func TestThatHandlersGetRegistered(t *testing.T) {
 	registered := []string{}
 
 	r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-		registered = append(registered, route.GetName())
+		p, _ := route.GetPathTemplate()
+		registered = append(registered, p)
 		return nil
 	})
 
 	for _, h := range config.Handlers {
 		found := false
 		for _, n := range registered {
-			if n == h.GetName() {
+			if n == h.GetPath() {
 				found = true
 			}
 		}

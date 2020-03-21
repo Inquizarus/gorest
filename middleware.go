@@ -6,24 +6,25 @@ import (
 )
 
 // Middleware for HTTP requests
-type Middleware func(http.HandlerFunc) http.HandlerFunc
+type Middleware func(http.Handler) http.Handler
 
 // WithJSONContent is a Middleware that sets the content type to json for the response
 func WithJSONContent() Middleware {
-	return func(f http.HandlerFunc) http.HandlerFunc {
+	return func(f http.Handler) http.Handler {
 		// Define the http.HandlerFunc
-		return func(w http.ResponseWriter, r *http.Request) {
+		fn := func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			// Call the next middleware/handler in chain
-			f(w, r)
+			f.ServeHTTP(w, r)
 		}
+		return http.HandlerFunc(fn)
 	}
 }
 
 // WithStrictTransportSecurity injects strict TLS related headers
 func WithStrictTransportSecurity(TLS ServeTLSConfig) Middleware {
-	return func(f http.HandlerFunc) http.HandlerFunc {
-		return func(w http.ResponseWriter, r *http.Request) {
+	return func(f http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
 			if true == TLS.Strict {
 				headerValue := "max-age=63072000"
 				if true == TLS.StrictSubDomains {
@@ -34,13 +35,14 @@ func WithStrictTransportSecurity(TLS ServeTLSConfig) Middleware {
 				}
 				w.Header().Add("Strict-Transport-Security", headerValue)
 			}
-			f(w, r)
+			f.ServeHTTP(w, r)
 		}
+		return http.HandlerFunc(fn)
 	}
 }
 
 // ChainMiddleware creates a function that will apply all passed middlewares
-func ChainMiddleware(f http.HandlerFunc, middlewares ...Middleware) http.HandlerFunc {
+func ChainMiddleware(f http.Handler, middlewares ...Middleware) http.Handler {
 	for _, m := range middlewares {
 		f = m(f)
 	}

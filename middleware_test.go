@@ -8,7 +8,7 @@ import (
 
 func TestThatWithJSONContentSetTheCorrectContentType(t *testing.T) {
 	mw := WithJSONContent()
-	s := httptest.NewServer(mw(func(w http.ResponseWriter, r *http.Request) {}))
+	s := httptest.NewServer(mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})))
 	defer s.Close()
 	res, err := http.Get(s.URL)
 	if err != nil {
@@ -34,7 +34,7 @@ func TestThatWithStrictTransportSecuritySetCorrectHeader(t *testing.T) {
 	}
 	for _, c := range cases {
 		mw := WithStrictTransportSecurity(c.TLS)
-		s := httptest.NewServer(mw(func(w http.ResponseWriter, r *http.Request) {}))
+		s := httptest.NewServer(mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})))
 		defer s.Close()
 		res, err := http.Get(s.URL)
 		if err != nil {
@@ -50,14 +50,14 @@ func TestThatWithStrictTransportSecuritySetCorrectHeader(t *testing.T) {
 
 func TestThatChainMiddlewareRunsAllPassedMiddlewares(t *testing.T) {
 	ran := false
-	mw := func(f http.HandlerFunc) http.HandlerFunc {
+	mw := func(f http.Handler) http.Handler {
 		// Define the http.HandlerFunc
-		return func(w http.ResponseWriter, r *http.Request) {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ran = true
-			f(w, r)
-		}
+			f.ServeHTTP(w, r)
+		})
 	}
-	s := httptest.NewServer(ChainMiddleware(func(w http.ResponseWriter, r *http.Request) {}, mw))
+	s := httptest.NewServer(ChainMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}), mw))
 	defer s.Close()
 	_, err := http.Get(s.URL)
 	if err != nil {

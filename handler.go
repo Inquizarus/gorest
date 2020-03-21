@@ -62,7 +62,9 @@ func executeHTTPFunc(f func(http.ResponseWriter, *http.Request, map[string]strin
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	ChainMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	fn := func(w http.ResponseWriter, r *http.Request) {
 		f(w, r, mux.Vars(r))
-	}, mws...)(w, r)
+	}
+	h := ChainMiddleware(http.HandlerFunc(fn), mws...)
+	h.ServeHTTP(w, r)
 }
