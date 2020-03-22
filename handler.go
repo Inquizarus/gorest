@@ -12,15 +12,18 @@ type Handler interface {
 	Handle(http.ResponseWriter, *http.Request)
 }
 
+// VerbHandler is responseible for a specific type of request
+type VerbHandler func(http.ResponseWriter, *http.Request, map[string]string)
+
 // BaseHandler to use for extending
 type BaseHandler struct {
 	Path        string
 	Name        string
 	Middlewares []Middleware
-	Get         func(http.ResponseWriter, *http.Request, map[string]string)
-	Put         func(http.ResponseWriter, *http.Request, map[string]string)
-	Post        func(http.ResponseWriter, *http.Request, map[string]string)
-	Delete      func(http.ResponseWriter, *http.Request, map[string]string)
+	Get         VerbHandler
+	Put         VerbHandler
+	Post        VerbHandler
+	Delete      VerbHandler
 }
 
 // GetPath for BaseHandler
@@ -51,7 +54,7 @@ func (h *BaseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.Handle(w, r)
 }
 
-func executeHTTPFunc(f func(http.ResponseWriter, *http.Request, map[string]string), w http.ResponseWriter, r *http.Request, mws []Middleware) {
+func executeHTTPFunc(f VerbHandler, w http.ResponseWriter, r *http.Request, mws []Middleware) {
 	if nil == f {
 		w.WriteHeader(http.StatusNotFound)
 		return
