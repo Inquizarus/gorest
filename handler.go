@@ -8,6 +8,7 @@ import (
 
 // Handler interface for controllers
 type Handler interface {
+	GetPrefix() string
 	GetPath() string
 	Handle(http.ResponseWriter, *http.Request)
 }
@@ -18,6 +19,7 @@ type VerbHandler func(http.ResponseWriter, *http.Request, map[string]string)
 // BaseHandler to use for extending
 type BaseHandler struct {
 	Path        string
+	Prefix      string
 	Name        string
 	Middlewares []Middleware
 	Get         VerbHandler
@@ -29,6 +31,11 @@ type BaseHandler struct {
 // GetPath for BaseHandler
 func (h *BaseHandler) GetPath() string {
 	return h.Path
+}
+
+// GetPrefix for BaseHandler
+func (h *BaseHandler) GetPrefix() string {
+	return h.Prefix
 }
 
 // Handle for BaseHandler

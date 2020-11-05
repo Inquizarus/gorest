@@ -48,6 +48,10 @@ func generateTLSConfig() *tls.Config {
 
 func registerHandlers(r *mux.Router, config ServeConfig) {
 	for _, h := range config.Handlers {
+		if "" != h.GetPrefix() {
+			r.PathPrefix(h.GetPrefix()).Handler(ChainMiddleware(http.HandlerFunc(h.Handle), config.Middlewares...))
+			continue
+		}
 		r.Handle(h.GetPath(), ChainMiddleware(http.HandlerFunc(h.Handle), config.Middlewares...))
 	}
 }

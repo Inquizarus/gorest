@@ -129,3 +129,66 @@ func TestThatTheCorrectHandlerIsServed(t *testing.T) {
 		assert.Equal(t, c.Expected, body, fmt.Sprintf("expected %s but got %s", c.Expected, body))
 	}
 }
+
+func TestThatPrefixRoutesAreAddedCorrectly(t *testing.T) {
+
+	r := mux.NewRouter()
+
+	config := ServeConfig{
+		Handlers: []Handler{
+			&BaseHandler{
+				Name:   "test-route",
+				Prefix: "/test/",
+				Get: func(w http.ResponseWriter, r *http.Request, p map[string]string) {
+					defer r.Body.Close()
+					w.Write([]byte(r.RequestURI))
+				},
+			},
+		},
+	}
+
+	registerHandlers(r, config)
+
+	recorder := httptest.NewRecorder()
+	r.ServeHTTP(recorder, httptest.NewRequest("GET", "/test/", nil))
+	assert.Equal(t, http.StatusOK, recorder.Code, fmt.Sprintf("expected %d but got %d", http.StatusOK, recorder.Code))
+
+}
+
+func TestThatPrefixRoutingWorksAsIntended(t *testing.T) {
+
+	r := mux.NewRouter()
+
+	config := ServeConfig{
+		Handlers: []Handler{
+			&BaseHandler{
+				Name:   "test-route",
+				Prefix: "/test/",
+				Get: func(w http.ResponseWriter, r *http.Request, p map[string]string) {
+					defer r.Body.Close()
+					w.Write([]byte(r.RequestURI))
+				},
+			},
+		},
+	}
+
+	registerHandlers(r, config)
+
+	cases := []struct {
+		Path     string
+		Method   string
+		Expected string
+	}{
+		{Path: "/test/", Method: "GET", Expected: "/test/"},
+		{Path: "/test/sub1/sub2", Method: "GET", Expected: "/test/sub1/sub2"},
+		{Path: "/demo/", Method: "GET", Expected: "404 page not found\n"},
+	}
+
+	for _, c := range cases {
+		recorder := httptest.NewRecorder()
+		r.ServeHTTP(recorder, httptest.NewRequest(c.Method, c.Path, nil))
+		body := recorder.Body.String()
+		assert.Equal(t, c.Expected, body, fmt.Sprintf("expected %s but got %s", c.Expected, body))
+	}
+
+}

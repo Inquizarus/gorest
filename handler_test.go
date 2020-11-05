@@ -60,6 +60,17 @@ func TestThatNotFoundIsTriggeredForUnSupportedRequestMethods(t *testing.T) {
 	}
 }
 
+func TestThatBaseHandlerGetPrefixReturnsCorrectValue(t *testing.T) {
+	expected := "/test/"
+	handler := rest.BaseHandler{
+		Prefix: expected,
+	}
+	actual := handler.GetPrefix()
+	if !assertEquals(actual, expected) {
+		t.Errorf("handler GetPrefix return wrong value, expected %s but got %s", expected, actual)
+	}
+}
+
 func assertEquals(x interface{}, y interface{}) bool {
 	return x == y
 }
